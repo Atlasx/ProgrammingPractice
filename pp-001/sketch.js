@@ -2,10 +2,15 @@ var tree;
 var bLength  = 200;			// Branch Length: 			length of the initial branch
 var bFactor  = 2;			// Branch Factor: 			branches per branch
 var bLFactor = 0.625;		// Branch Length Factor: 	reduce length of branches by a factor
-var bWidth   = 5;			// Branch Width: 			width of the branch
+var bWidth   = 30;			// Branch Width: 			width of the branch
 var bWFactor = 0.625;		// Branch Width Factor: 	reduce width of branches by a factor
 var bAngle   = Math.PI/8;	// Branch Angle: 			angle between branches
 var tDepth   = 5;			// Tree Depth: 				number of levels of branches
+var bMax 	 = 500; 		// Branch Max: 				maximum number of branches
+
+var bRandChance = 0.1; 		// Branch Random Chance: 	chance a branch will be deleted
+var bRandAngle	= Math.PI/16;
+var bRandLFactor = 0.2;		// Branch Random Length Factor
 
 var bAngleSlider;
 var prevBAngleSlider = -1;
@@ -42,12 +47,21 @@ function draw() {
   	updatePrevSliders();
 }
 
+function mouseClicked() {
+	createTree();
+}
+
 function createTree() {
 	//Clear tree
 	tree = [];
 
 	//Create root
-	tree = [ new Branch(createVector(width/2, height), bLength, bWidth, 0) ];
+	tree = [ new Branch(createVector(width/2, height),
+		bLength, 
+		bWidth, 
+		(random(2)-1)*bRandAngle)
+	];
+
 	//Recursively generate branches
 	branch(0, tDepthSlider.value());
 }
@@ -55,16 +69,25 @@ function createTree() {
 function branch(index, depth) {
 	depth--;
 
+	if (tree.length > bMax) return;
+
 	//Create x branches
 	if (depth > 0) {
 		for (var i = 0; i < bFactorSlider.value(); i++) {
 
-			//Create a branch
+			//Random chance branch will not grow
+			if (random(1) < bRandChance) continue;
+
+			//Create branch params
 			let p = tree[index];
 			let curBrA = bAngleSlider.value();
-			let a = map(i, 0, bFactorSlider.value()-1, p.angle - curBrA, p.angle + curBrA);
+			let a = map(i, 0, bFactorSlider.value()-1, p.angle - curBrA, p.angle + curBrA)
+				+ (random(2)-1) * bRandAngle;
 			let w = p.thick * bWFactor > 1 ? p.thick * bWFactor : 1;
-			var b = new Branch(p.endPos(), p.len * bLFactor, w, a);
+			let bLF = bLFactor + (random(2)-1) * bRandLFactor;
+
+			//Create the branch
+			var b = new Branch(p.endPos(), p.len * bLF, w, a);
 
 			tree.push(b);
 
