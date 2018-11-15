@@ -6,7 +6,7 @@ var bWidth   = 30;			// Branch Width: 			width of the branch
 var bWFactor = 0.625;		// Branch Width Factor: 	reduce width of branches by a factor
 var bAngle   = Math.PI/8;	// Branch Angle: 			angle between branches
 var tDepth   = 5;			// Tree Depth: 				number of levels of branches
-var bMax 	 = 500; 		// Branch Max: 				maximum number of branches
+var bMax 	 = 1000; 		// Branch Max: 				maximum number of branches
 
 var bRandChance = 0.1; 		// Branch Random Chance: 	chance a branch will be deleted
 var bRandAngle	= Math.PI/16;
