@@ -1,3 +1,9 @@
+// Simple 2D Tree Generator
+//
+// Procedurally generates a 2D set of branches
+// based off a set of basic branching parameters
+
+
 var tree;
 var bLength  = 200;			// Branch Length: 			length of the initial branch
 var bFactor  = 2;			// Branch Factor: 			branches per branch
