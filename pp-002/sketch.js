@@ -10,7 +10,7 @@ var bColor = [0.753, 0.788, 0.8196];
 var noiseShader;
 
 function preload() {
-	noiseShader = loadShader('./noiseVert.glsl', './noiseFrag.glsl');
+	noiseShader = loadShader('./ProgrammingPractice/pp-002/noiseVert.glsl', './ProgrammingPractice/pp-002/noiseFrag.glsl');
 }
 
 function setup() {
