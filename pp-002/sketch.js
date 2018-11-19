@@ -4,27 +4,10 @@
 // range between foreground and background colors
 
 //Colors
-var fColor = [255, 255, 255];
-var bColor = [0, 0, 0];
-
-//Params
-var hueMaxDif = 10;
-var hueMinDif = 3;
-
-var satMin = 5;
-var satMax = 30;
-
-var satMaxDif = 50;
-var satMinDif = 50;
-
-var valMin = 85;
-var valMax = 90;
-
-var ridgeMinCount = 3;
-var ridgeMaxCount = 8;
+var fColor = [0.427, 0.63, 0.8196];
+var bColor = [0.753, 0.788, 0.8196];
 
 var noiseShader;
-var teapot;
 
 function preload() {
 	noiseShader = loadShader('/pp-002/noiseVert.glsl', '/pp-002/noiseFrag.glsl');
@@ -34,63 +17,83 @@ function setup() {
 	//Basic setups
 	createCanvas(900, 600, WEBGL);
 	frameRate(30);
-	//generate();
 
 	// Need to reset pixel density on higher res machines
 	// Who really needs those extra pixels
 	pixelDensity(1);
 
 	shader(noiseShader);
-	//noStroke();
 
 	noiseShader.setUniform("width", width);
 	noiseShader.setUniform("height", height);
+	noiseShader.setUniform("seed", second());
+	noiseShader.setUniform("fColor", fColor);
+	noiseShader.setUniform("bColor", bColor);
+	noiseShader.setUniform("shiftSpeed", random(10));
 }
 
 function draw() {
-	noiseShader.setUniform("_Time", millis() / 1000)
 	quad(-1, -1, 1, -1, 1, 1, -1, 1);
-}
-
-function generate() {
-	//Set differences
-	let hueDif = random(hueMinDif, hueMaxDif);
-	let satDif = random(satMinDif, satMaxDif);
-
-	//Select foreground color
-	//fColor = [random(Math.abs(360)), random(satMin, max(satMax,satMax-satDif)), random(valMin, valMax)];
-
-	//Select background color
-	//bColor = [(fColor[0]+hueDif) % 360, fColor[1]+satDif, fColor[2] + 10];
-
-	colorMode(HSB);
-	background(bColor);
-
-	//Create range
-	console.log("Creating cutoff");
-	var layer = createImage(900,600);
-	layer.loadPixels();
-	for (var x = 0; x < layer.width; x++) {
-		for (var y = 0; y < layer.height; y++) {
-			let col = evaluateCutoff(x, y);
-			layer.set(x, y, col);
-		}
-	}
-	layer.updatePixels();
-
-	//Display image
-	image(layer, 0, 0);
-}
-
-function evaluateCutoff(x, y) {
-
-	var n = noise(x * 0.006, y * 0.005) * (y/(height));
-	var col = n > 0.5 ? fColor : bColor;
-	col.push(255);
-
-	return col;
+	noiseShader.setUniform("time", millis()/1000);
 }
 
 function mouseClicked() {
-	generate();
+	var hue = random(1);
+	var light = 0.5;
+	var sat = 0.5;
+
+	fColor = hsvToRgb(hue, sat - 0.3, light + 0.3);
+	bColor = hsvToRgb(hue, sat, light);
+
+	noiseShader.setUniform("fColor", fColor);
+	noiseShader.setUniform("bColor", bColor);
+	noiseShader.setUniform("seed", second());
+	noiseShader.setUniform("shiftSpeed", random(10));
+}
+
+
+//HSV and RGB conversion functions taken from https://gist.github.com/mjackson/5311256
+//Modified to accept values ranged [0, 1]
+function hsvToRgb(h, s, v){
+    var r, g, b;
+
+    var i = Math.floor(h * 6);
+    var f = h * 6 - i;
+    var p = v * (1 - s);
+    var q = v * (1 - f * s);
+    var t = v * (1 - (1 - f) * s);
+
+    switch(i % 6){
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+
+    return [r, g, b];
+}
+
+function rgbToHsv(r, g, b) {
+
+  var max = Math.max(r, g, b), min = Math.min(r, g, b);
+  var h, s, v = max;
+
+  var d = max - min;
+  s = max == 0 ? 0 : d / max;
+
+  if (max == min) {
+    h = 0; // achromatic
+  } else {
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+
+    h /= 6;
+  }
+
+  return [ h, s, v ];
 }
