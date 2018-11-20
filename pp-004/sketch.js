@@ -24,6 +24,7 @@ var bColor, fColor;
 function setup() {
 	createCanvas(900,600);
 	pixelDensity(1);
+	frameRate(60);
 
 	origin = createVector(width/2, height/2);
 	seed = millis();
@@ -146,11 +147,16 @@ function updateSliders() {
 	if (prevLW != layerWidthSlider.value()) { changed = true; }
 	if (prevRad != radiusSlider.value()) { changed = true; }
 
+	prevLC = layerCountSlider.value();
+	prevLW = layerWidthSlider.value();
+	prevRad = radiusSlider.value();
+
 	layerCount = layerCountSlider.value();
 	layerWidth = layerWidthSlider.value();
 	radius = radiusSlider.value();
 	noiseIntensity = radius * 0.7;
 
+	if (changed) console.log("Sliders changed, redrawing");
 	if (changed) createRings();
 }
 
